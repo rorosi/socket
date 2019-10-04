@@ -2,6 +2,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define PORT 10000
 
@@ -9,12 +10,12 @@ char buffer[100] = "안녕하세요, 만나서 반가워요!\n";
 char nbuffer[100] = "내 이름은 서버야!\n";
 char abuffer[100] = "난 1살이야!\n";
 char rcvBuffer[100];
+char *rcvBuffer2[100];
 int main(){
 	int c_socket, s_socket;
 	struct sockaddr_in s_addr, c_addr;
 	int len;
 	int n;
-
 	// 1. 서버 소켓 생성
 	//서버 소켓 = 클라이언트의 접속 요청을 처리(허용)해 주기 위한 소켓
 	s_socket = socket(PF_INET, SOCK_STREAM, 0); //TCP/IP 통신을 위한 서버 소켓 생성
@@ -41,9 +42,9 @@ int main(){
 	//5. 클라이언트 요청 처리
 	// 요청을 허용한 후, Hello World 메세지를 전송함
 	while(1){ //무한 루프
-		int count = 1;
+		int count = 0;   
 		int i = 0;
-		char *token;
+		int result;
 		len = sizeof(c_addr);
 		printf("클라이언트 접속을 기다리는 중....\n");
 		c_socket = accept(s_socket, (struct sockaddr *)&c_addr, &len); 
@@ -52,7 +53,7 @@ int main(){
 		printf("클라이언트 접속 허용\n");
 		while(1){
 			n = read(c_socket, rcvBuffer, sizeof(rcvBuffer));
-			token = strtok(rcvBuffer,"strlen ");
+			rcvBuffer[n] = '\0';                //문자열 깨짐 방지
 			printf("클라이언트가 보낸 메세지: %s\n", rcvBuffer);
 			if(strncasecmp(rcvBuffer, "quit", 4) == 0 || strncasecmp(rcvBuffer, "kill server", 11) == 0){
 				break;
@@ -66,12 +67,28 @@ int main(){
 			}else if(strncasecmp(rcvBuffer, "몇살이니?",5) == 0){
 				write(c_socket, abuffer, strlen(abuffer));
 				continue;
-			}else if(strncasecmp(rcvBuffer,token,n) == 10){
-					while(rcvBuffer[i+7] != NULL){
+			}else if(strncasecmp(rcvBuffer,"strlen ",7) == 0){
+					/*while(rcvBuffer[i] != '\0'){
 					count++;
+					i++;} */
+				count = strlen(rcvBuffer);     //문자열의 길이를 담을 변수
+				printf("문자열의 길이 : %d\n",count-7); //strlen 만큼의 수를 뺀 다음 문자열의 길이를 출력  
+				for(i=0; i<sizeof(rcvBuffer); i++){
+					rcvBuffer[i] = '\0';				//버퍼를 비우기 위해 배열을 초기화
 				}
-				printf("%d",count);
-				continue;
+			}else if(strncasecmp(rcvBuffer,"strcmp ",6) == 0 ){				
+				char *ptr = strtok(rcvBuffer," ");   //공백으로 구분
+				i=0;
+				while(ptr != NULL){					  //문자열을 각각 배열에 저장
+				rcvBuffer2[i] = ptr;
+				i++;
+				ptr = strtok(NULL," ");
+				}
+				result = strcmp(rcvBuffer2[1],rcvBuffer2[2]);
+				printf("두 문자열의 strcmp 결과 값: %d\n",result);
+				for(i=0; i<sizeof(rcvBuffer); i++){
+					rcvBuffer[i] = '\0';
+				}
 			}
 			write(c_socket,rcvBuffer,n);
 			continue;
