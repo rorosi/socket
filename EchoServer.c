@@ -62,18 +62,15 @@ int main(){
 			}else if(strcmp(rcvBuffer, "안녕하세요\n") == 0){
 				write(c_socket, buffer, strlen(buffer));
 				for(i=0; i<sizeof(rcvBuffer); i++)
-					rcvBuffer[i] = '\0';
-				continue;												//다시 반복문으로 돌아가기 위해 선언
+					rcvBuffer[i] = '\0';											
 			}else if(strcmp(rcvBuffer, "이름이 뭐야?\n") == 0){
 				write(c_socket, nbuffer, strlen(nbuffer));
 				for(i=0; i<sizeof(rcvBuffer); i++)
 					rcvBuffer[i] = '\0';
-				continue;
 			}else if(strcmp(rcvBuffer, "몇살이니?\n") == 0){
 				write(c_socket, abuffer, strlen(abuffer));
 				for(i=0; i<sizeof(rcvBuffer); i++)
 					rcvBuffer[i] = '\0';
-				continue;
 			}else if(strncasecmp(rcvBuffer,"strlen ",6) == 0){
 				rcvBuffer[strlen(rcvBuffer) - 1] = '\0';	
 				char *ptr = strtok(rcvBuffer," ");   //공백으로 구분
@@ -104,7 +101,7 @@ int main(){
 			}
 			write(c_socket,rcvBuffer,n);
 			for(i=0; i<sizeof(rcvBuffer); i++)
-					rcvBuffer[i] = '\0';
+				rcvBuffer[i] = '\0';
 		}
 		close(c_socket);
 		if (strncasecmp(rcvBuffer, "kill server", 11) == 0)
