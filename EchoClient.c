@@ -46,7 +46,7 @@ int main(){
 			return -1;
 		}
 		rcvBuffer[n] = '\0'; //문자열 뒷부분 깨짐 방지
-		printf("서버에서 보낸 메세지: %s\n", rcvBuffer); //서버에서 받은 메세지 출력
+		printf("서버가 보낸 메세지: %s\n", rcvBuffer); //서버에서 받은 메세지 출력
 		printf("서버에서 받은 메세지의 길이: %d\n", n); //3-2. 서버에서 받은 메세지의 길이 출력 
 	}
 	close(c_socket);

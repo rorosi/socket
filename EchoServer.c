@@ -11,6 +11,8 @@ char nbuffer[100] = "내 이름은 서버야!\n";
 char abuffer[100] = "난 1살이야!\n";
 char rcvBuffer[100];
 char *rcvBuffer2[100];
+char *rcvBuffer3[100];
+
 int main(){
 	int c_socket, s_socket;
 	struct sockaddr_in s_addr, c_addr;
@@ -53,45 +55,56 @@ int main(){
 		printf("클라이언트 접속 허용\n");
 		while(1){
 			n = read(c_socket, rcvBuffer, sizeof(rcvBuffer));
-			rcvBuffer[n] = '\0';                //문자열 깨짐 방지
 			printf("클라이언트가 보낸 메세지: %s\n", rcvBuffer);
 			if(strncasecmp(rcvBuffer, "quit", 4) == 0 || strncasecmp(rcvBuffer, "kill server", 11) == 0){
 				break;
 				write(c_socket, rcvBuffer, n); //클라이언트에게 buffer의 내용을 전송함
-			}else if(strncasecmp(rcvBuffer, "안녕하세요",5) == 0){
+			}else if(strcmp(rcvBuffer, "안녕하세요\n") == 0){
 				write(c_socket, buffer, strlen(buffer));
+				for(i=0; i<sizeof(rcvBuffer); i++)
+					rcvBuffer[i] = '\0';
 				continue;												//다시 반복문으로 돌아가기 위해 선언
-			}else if(strncasecmp(rcvBuffer, "이름이 뭐야?",7) == 0){
+			}else if(strcmp(rcvBuffer, "이름이 뭐야?\n") == 0){
 				write(c_socket, nbuffer, strlen(nbuffer));
+				for(i=0; i<sizeof(rcvBuffer); i++)
+					rcvBuffer[i] = '\0';
 				continue;
-			}else if(strncasecmp(rcvBuffer, "몇살이니?",5) == 0){
+			}else if(strcmp(rcvBuffer, "몇살이니?\n") == 0){
 				write(c_socket, abuffer, strlen(abuffer));
+				for(i=0; i<sizeof(rcvBuffer); i++)
+					rcvBuffer[i] = '\0';
 				continue;
-			}else if(strncasecmp(rcvBuffer,"strlen ",7) == 0){
-					/*while(rcvBuffer[i] != '\0'){
-					count++;
-					i++;} */
-				count = strlen(rcvBuffer);     //문자열의 길이를 담을 변수
-				printf("문자열의 길이 : %d\n",count-7); //strlen 만큼의 수를 뺀 다음 문자열의 길이를 출력  
-				for(i=0; i<sizeof(rcvBuffer); i++){
-					rcvBuffer[i] = '\0';				//버퍼를 비우기 위해 배열을 초기화
-				}
-			}else if(strncasecmp(rcvBuffer,"strcmp ",6) == 0 ){				
+			}else if(strncasecmp(rcvBuffer,"strlen ",6) == 0){
+				rcvBuffer[strlen(rcvBuffer) - 1] = '\0';	
 				char *ptr = strtok(rcvBuffer," ");   //공백으로 구분
 				i=0;
+				count=0;
 				while(ptr != NULL){					  //문자열을 각각 배열에 저장
 				rcvBuffer2[i] = ptr;
 				i++;
 				ptr = strtok(NULL," ");
 				}
-				result = strcmp(rcvBuffer2[1],rcvBuffer2[2]);
-				printf("두 문자열의 strcmp 결과 값: %d\n",result);
-				for(i=0; i<sizeof(rcvBuffer); i++){
+				count = strlen(rcvBuffer2[1]);
+				printf("문자열의 길이 : %d\n",count);
+				for(i=0; i<sizeof(rcvBuffer); i++)
 					rcvBuffer[i] = '\0';
+			}else if(strncasecmp(rcvBuffer,"strcmp ",6) == 0 ){	
+				rcvBuffer[strlen(rcvBuffer) - 1] = '\0';			
+				char *ptr = strtok(rcvBuffer," ");   //공백으로 구분
+				i=0;
+				while(ptr != NULL){					  //문자열을 각각 배열에 저장
+				rcvBuffer3[i] = ptr;
+				i++;
+				ptr = strtok(NULL," ");
 				}
+				result = strcmp(rcvBuffer3[1],rcvBuffer3[2]);
+				printf("두 문자열의 strcmp 결과 값: %d\n",result);
+				for(i=0; i<sizeof(rcvBuffer); i++)
+					rcvBuffer[i] = '\0';
 			}
 			write(c_socket,rcvBuffer,n);
-			continue;
+			for(i=0; i<sizeof(rcvBuffer); i++)
+					rcvBuffer[i] = '\0';
 		}
 		close(c_socket);
 		if (strncasecmp(rcvBuffer, "kill server", 11) == 0)
