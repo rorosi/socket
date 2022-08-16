@@ -77,22 +77,27 @@ void *do_chat(void *arg)
 {
 	int c_socket = *((int *)arg);
 	char chatData[CHATDATA];
+        char S_Data[CHATDATA];
 	int i, n;
+        char *token = NULL;
+	char *myname = NULL;
+	char *tonickname = NULL;
+	char *message = NULL;
 	while(1) {
 		memset(chatData, 0, sizeof(chatData));
 		if((n = read(c_socket, chatData, sizeof(chatData))) > 0) {
-			char *token = "";
-			char *tonickname = "";
-			char *nickname = "";
-			char *message = "";
+			printf("receive : %s\n", chatData);
 			if(strncasecmp(chatData, "/w", 2) == 0){	
 				token = strtok(chatData, " "); 
 				tonickname = strtok(NULL, " ");
-				message = strtok(NULL, "\0"); 
+                                myname = strtok(NULL, " ");
+				message = strtok(NULL, "\0");
 				for(i = 0; i < MAX_CLIENT; i++) {
 					if(clientList[i].c_socket != INVALID_SOCK) {
-							if(strcasecmp(clientList[i].nickname, tonickname) == 0)			
-								write(clientList[i].c_socket, message, strlen(message));	
+							if(strncasecmp(clientList[i].nickname, tonickname, strlen(tonickname)) == 0)	{		
+                                                                sprintf(S_Data,"[귓속말(%s -> [%s])] : %s \n",myname, tonickname, message); 
+								write(clientList[i].c_socket, S_Data, strlen(S_Data));	
+                                                        }
 					}
 				}
 			}else{
