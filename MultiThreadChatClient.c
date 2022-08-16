@@ -19,10 +19,10 @@ char    nickname[20];
 int main(int argc, char *argv[ ])
 {
     int c_socket;
-    struct sockaddr_in c_addr;
+    struct sockaddr_in c_addr;             // sockaddr 구조체는 소켓의 주소를 담는 기본 구조체
     int len;
-    char chatData[CHATDATA];
-    char buf[CHATDATA];
+    char chatData[CHATDATA];               // 채팅 메시지를 저장할 변수
+    char buf[CHATDATA];                    // 읽어들인 데이터가 저장될 버퍼 변수이다.
     int nfds;
     fd_set read_fds;
     int n;
@@ -37,11 +37,11 @@ int main(int argc, char *argv[ ])
         printf("Can not connect\n");
         return -1;
     }
-	write(c_socket, nickname, strlen(nickname));	
-	pthread_create(&thread_1,NULL,do_send_chat,(void *)&c_socket);
-	pthread_create(&thread_2,NULL,do_receive_chat,(void *)&c_socket);
-	pthread_join(thread_1,&thread_return);
-	pthread_join(thread_2,&thread_return);
+    write(c_socket, nickname, strlen(nickname));	
+    pthread_create(&thread_1,NULL,do_send_chat,(void *)&c_socket);
+    pthread_create(&thread_2,NULL,do_receive_chat,(void *)&c_socket);
+    pthread_join(thread_1,&thread_return);
+    pthread_join(thread_2,&thread_return);
 
     close(c_socket);
 }
