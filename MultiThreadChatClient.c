@@ -26,13 +26,16 @@ int main(int argc, char *argv[ ])
     int nfds;
     fd_set read_fds;
     int n;
-    c_socket = socket(PF_INET, SOCK_STREAM, 0);
+    //1. 클라이언트 소켓 생성
+    c_socket = socket(PF_INET, SOCK_STREAM, 0); //서버와 동일한 설정으로 생성
+    //2.소켓 정보 초기화
     memset(&c_addr, 0, sizeof(c_addr));
-    c_addr.sin_addr.s_addr = inet_addr(IPADDR);
+    c_addr.sin_addr.s_addr = inet_addr(IPADDR); //접속할 IP 설정 (127.0.0.1)
     c_addr.sin_family = AF_INET;
     c_addr.sin_port = htons(PORT);
     printf("Input Nickname : ");
     scanf("%s", nickname);
+    //3. 서버에 접속
     if(connect(c_socket, (struct sockaddr *) &c_addr, sizeof(c_addr)) == -1) {
         printf("Can not connect\n");
         return -1;
