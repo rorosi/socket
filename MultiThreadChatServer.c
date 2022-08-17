@@ -6,9 +6,10 @@
 #include <sys/socket.h>
 #include <pthread.h>
 
-void *do_chat(void *);
-int pushClient(int, char *);
-int popClient(int);
+void *do_chat(void *); //채팅 메세지를 보내는 함수
+int pushClient(int, char *); //새로운 클라이언트가 접속했을 때 클라이언트 정보 추가
+int popClient(int); //클라이언트가 종료했을 때 클라이언트 정보 삭제
+
 pthread_t thread;
 pthread_mutex_t mutex;
 
@@ -58,10 +59,12 @@ int main(int argc, char *argv[ ])
 	while(1) {
 		len = sizeof(c_addr);
 		c_socket = accept(s_socket, (struct sockaddr *) &c_addr, &len);
+		memset(nickname, 0 , sizeof(nickname));
 		if((n = read(c_socket, nickname, sizeof(nickname))) < 0){
 			printf("nickname read fail.\n");
 			return -1;
 		}	
+		printf("%s chat in\n", nickname);
 		res = pushClient(c_socket, nickname);
 		if(res < 0) {
 			write(c_socket, CODE200, strlen(CODE200));
@@ -93,18 +96,20 @@ void *do_chat(void *arg)
                                 myname = strtok(NULL, " ");
 				message = strtok(NULL, "\0");
 				for(i = 0; i < MAX_CLIENT; i++) {
-					if(clientList[i].c_socket != INVALID_SOCK) {
-							if(strncasecmp(clientList[i].nickname, tonickname, strlen(tonickname)) == 0)	{		
-                                                                sprintf(S_Data,"[귓속말(%s -> [%s])] : %s \n",myname, tonickname, message); 
-								write(clientList[i].c_socket, S_Data, strlen(S_Data));	
-                                                        }
-					}
+					if(strncasecmp(clientList[i].nickname, tonickname, strlen(tonickname)) == 0)	{		
+                                                sprintf(S_Data,"[귓속말(%s -> [%s])] : %s \n",myname, tonickname, message); 
+						write(clientList[i].c_socket, S_Data, strlen(S_Data));	
+                                      }
+				}
+				if(i == MAX_CLIENT){
+						sprintf(chatData,"no such user\n");
+						write(c_socket,chatData,strlen(chatData));
 				}
 			}else{
 				for(i = 0; i < MAX_CLIENT; i++) 
 					write(clientList[i].c_socket, chatData, n);
 			}
-			if(strstr(chatData, escape) != NULL) {
+			if(strstr(chatData, escape) != NULL) {			        
 				popClient(c_socket);
 				break;
 			}
@@ -136,6 +141,7 @@ int popClient(int c_socket)
 	for(i = 0; i < MAX_CLIENT; i++) {
 		if(c_socket == clientList[i].c_socket) {
 			clientList[i].c_socket = INVALID_SOCK;
+			printf("%s chat out\n", clientList[i].nickname);
 			break;
 		}
 	}
